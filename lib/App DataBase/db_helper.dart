@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -13,8 +14,9 @@ class DBHelper extends Sqflite{
 
   static const BLOG_TABLE = 'blog';
   static const ID = 'id';
-  static const IMAGE = 'image_url';
+  static const IMAGE_URL = 'image_url';
   static const TITLE = 'title';
+  static const IMAGE = 'image';
 
   static const FAV_TABLE = 'favrouite';
 
@@ -36,8 +38,8 @@ class DBHelper extends Sqflite{
       dbPath,
       version: 1,
       onCreate: (db, version) {
-        db.execute("CREATE TABLE $BLOG_TABLE ($ID TEXT UNIQUE,$TITLE TEXT,$IMAGE TEXT)");
-        db.execute("CREATE TABLE $FAV_TABLE ($ID TEXT UNIQUE,$TITLE TEXT,$IMAGE TEXT)");
+        db.execute("CREATE TABLE $BLOG_TABLE ($ID TEXT UNIQUE,$TITLE TEXT,$IMAGE_URL TEXT,$IMAGE BLOB)");
+        db.execute("CREATE TABLE $FAV_TABLE ($ID TEXT UNIQUE,$TITLE TEXT,$IMAGE_URL TEXT,$IMAGE BLOB)");
       },
     );
 
@@ -108,6 +110,29 @@ class DBHelper extends Sqflite{
 
     return count>0;
 
+  }
+
+  // Save image data as BLOB in the database
+  Future<void> saveImage(String id, Uint8List imageBytes) async {
+    var db = await getDB();
+    await db.update(
+      BLOG_TABLE,
+      {IMAGE: imageBytes},
+      where: "$ID = ?",
+      whereArgs: [id],
+    );
+  }
+
+  // Retrieve image data from the database
+  Future<Uint8List?> getImage(String id) async {
+    var db = await getDB();
+    var result = await db.query(BLOG_TABLE, columns: [IMAGE]);
+
+    if (result.isNotEmpty) {
+      return result.first[IMAGE] as Uint8List;
+    } else {
+      return null;
+    }
   }
   
 }

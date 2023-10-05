@@ -80,7 +80,7 @@ class _HomePageState extends State<HomePage> {
         if(state is BlogsLoadingState){
           return Center(child: CircularProgressIndicator(),);
         } else if(state is BlogsErrorState){
-          return Center(child: Text('${state.errorMsg}'),);
+          return Center(child: Text('${state.errorMsg}',style: TextStyle(color: Colors.white),),);
         } else if(state is BlogsInternetErrorState){
           return Container(color: Colors.white,child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -160,6 +160,9 @@ class _HomePageState extends State<HomePage> {
         if(containsEqualName(favData, blogData.id!)){
           checkFav =true;
         }
+
+        // var img = await dbHelper.getImage(blogData.id!);
+
         if (blogData != null) {
           return InkWell(
             onTap: () {
@@ -174,8 +177,7 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               children: [
                 ListTile(
-                  leading: checkInt ? Text((index+1).toString(),style: TextStyle(fontSize: 18,color: Colors.white),):
-                  Image.network(blogData.image_url!,height: 30,width: 30),
+                  leading: Image.memory(blogData.image!,height: 30,width: 30),
                   title: Text(blogData.title!,style: TextStyle(color: Colors.white,fontSize: 17),),
                   trailing: InkWell(
                     onTap: (){
