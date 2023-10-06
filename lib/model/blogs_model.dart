@@ -4,16 +4,14 @@ class BlogsModel{
 
   String? id;
   String? image_url;
-  Uint8List? image;
   String? title;
 
-  BlogsModel({this.id,this.image_url,this.title,this.image});
+  BlogsModel({this.id,this.image_url,this.title});
 
   factory BlogsModel.fromJson(Map<String,dynamic> json){
     return BlogsModel(
       id: json['id'],
       image_url: json['image_url'],
-      image: json['image'],
       title: json['title'],
     );
   }
@@ -23,7 +21,6 @@ class BlogsModel{
       DBHelper.ID : id,
       DBHelper.TITLE : title,
       DBHelper.IMAGE_URL : image_url,
-      DBHelper.IMAGE : image,
     };
   }
 

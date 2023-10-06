@@ -6,7 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 class CustomToast{
   FutureOr<Null?> toastMessage(){
     Fluttertoast.showToast(
-      msg: "Please open Internet",
+      msg: "Please check your Internet Connection",
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.BOTTOM,
       timeInSecForIosWeb: 1,

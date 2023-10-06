@@ -7,6 +7,7 @@ import 'package:subspace_project/Api/my_exceptions.dart';
 import 'package:subspace_project/App%20DataBase/db_helper.dart';
 import 'package:subspace_project/model/blogs_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:subspace_project/model/img_blob_model.dart';
 
 part 'blogs_event.dart';
 part 'blogs_state.dart';
@@ -32,7 +33,7 @@ class BlogsBloc extends Bloc<BlogsEvent, BlogsState> {
           final response = await http.get(Uri.parse(blog.image_url!));
           final List<int> bytes = response.bodyBytes;
           final imageBlob = Uint8List.fromList(bytes);
-          await dbHelper.saveImage(blog.id!, imageBlob);
+          await dbHelper.saveImage(ImageBlobModel(id: blog.id!, image: imageBlob));
         }
 
 

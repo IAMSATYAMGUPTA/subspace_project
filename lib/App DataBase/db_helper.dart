@@ -5,6 +5,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:subspace_project/model/blogs_model.dart';
+import 'package:subspace_project/model/img_blob_model.dart';
 
 class DBHelper extends Sqflite{
 
@@ -19,6 +20,7 @@ class DBHelper extends Sqflite{
   static const IMAGE = 'image';
 
   static const FAV_TABLE = 'favrouite';
+  static const IMG_BLOB_TABLE = 'blob_img';
 
   Database? database;
 
@@ -38,8 +40,9 @@ class DBHelper extends Sqflite{
       dbPath,
       version: 1,
       onCreate: (db, version) {
-        db.execute("CREATE TABLE $BLOG_TABLE ($ID TEXT UNIQUE,$TITLE TEXT,$IMAGE_URL TEXT,$IMAGE BLOB)");
-        db.execute("CREATE TABLE $FAV_TABLE ($ID TEXT UNIQUE,$TITLE TEXT,$IMAGE_URL TEXT,$IMAGE BLOB)");
+        db.execute("CREATE TABLE $BLOG_TABLE ($ID TEXT UNIQUE,$TITLE TEXT,$IMAGE_URL TEXT)");
+        db.execute("CREATE TABLE $FAV_TABLE ($ID TEXT UNIQUE,$TITLE TEXT,$IMAGE_URL TEXT)");
+        db.execute("CREATE TABLE $IMG_BLOB_TABLE ($ID TEXT UNIQUE,$IMAGE BLOB)");
       },
     );
 
@@ -113,20 +116,21 @@ class DBHelper extends Sqflite{
   }
 
   // Save image data as BLOB in the database
-  Future<void> saveImage(String id, Uint8List imageBytes) async {
+  Future<void> saveImage(ImageBlobModel imageBlobModel) async {
     var db = await getDB();
-    await db.update(
-      BLOG_TABLE,
-      {IMAGE: imageBytes},
-      where: "$ID = ?",
-      whereArgs: [id],
-    );
+    await db.insert(IMG_BLOB_TABLE,imageBlobModel.toMap() );
   }
 
   // Retrieve image data from the database
   Future<Uint8List?> getImage(String id) async {
     var db = await getDB();
-    var result = await db.query(BLOG_TABLE, columns: [IMAGE]);
+    var result = await db.query(
+        IMG_BLOB_TABLE,
+      columns: [IMAGE],
+      where: "$ID = ?",
+      whereArgs: [id],
+      limit: 1
+    );
 
     if (result.isNotEmpty) {
       return result.first[IMAGE] as Uint8List;
@@ -134,5 +138,6 @@ class DBHelper extends Sqflite{
       return null;
     }
   }
-  
+
+
 }

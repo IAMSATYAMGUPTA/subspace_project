@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:typed_data';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,6 +12,7 @@ import 'package:subspace_project/Screens/blog_detail_page.dart';
 import 'package:subspace_project/Services/favourite_provider.dart';
 import 'package:subspace_project/model/blogs_model.dart';
 import 'package:badges/badges.dart' as badges;
+import 'package:subspace_project/model/img_blob_model.dart';
 
 import '../Services/Bloc/blogs_bloc.dart';
 import 'favourite_page.dart';
@@ -166,34 +170,30 @@ class _HomePageState extends State<HomePage> {
         if (blogData != null) {
           return InkWell(
             onTap: () {
-              if(!checkInt){
-                Navigator.push(context, MaterialPageRoute(builder: (context) =>
-                    BlogsDetailPage(blogsModel: BlogsModel(id: blogData.id,title: blogData.title,image_url: blogData.image_url)),));
-              }else{
-                CustomToast().toastMessage();
-              }
+              Navigator.push(context, MaterialPageRoute(builder: (context) =>
+                  BlogsDetailPage(check: false,blogsModel: BlogsModel(id: blogData.id,title: blogData.title,image_url: blogData.image_url)),));
 
             },
             child: Column(
               children: [
                 ListTile(
-                  leading: Image.memory(blogData.image!,height: 30,width: 30),
+                  leading: checkInt ? Text((index+1).toString(),style: TextStyle(fontSize: 16,color: Colors.white),):Image.network(blogData.image_url!,height: 30,width: 30),
                   title: Text(blogData.title!,style: TextStyle(color: Colors.white,fontSize: 17),),
                   trailing: InkWell(
-                    onTap: (){
-                      if(checkFav){
-                        context.read<BlogFavProvider>().deleteFavBlog(blogData.id!);
-                        favData.removeWhere((element) => element.id==blogData.id!);
-                        context.read<BlogFavProvider>().removerCounter();
-                      }else{
-                        context.read<BlogFavProvider>().addFavBlog(BlogsModel(id: blogData.id,title: blogData.title,image_url: blogData.image_url));
-                        favData.add(BlogsModel(id: blogData.id,title: blogData.title,image_url: blogData.image_url));
-                        context.read<BlogFavProvider>().addCounter();
-                      }
-                      setState(() {});
-                    },
-                    child: checkFav? Icon(Icons.favorite,color: Colors.red.shade300,size: 35):
-                    Icon(Icons.favorite_border,color: Colors.grey,size: 35)),
+                      onTap: (){
+                        if(checkFav){
+                          context.read<BlogFavProvider>().deleteFavBlog(blogData.id!);
+                          favData.removeWhere((element) => element.id==blogData.id!);
+                          context.read<BlogFavProvider>().removerCounter();
+                        }else{
+                          context.read<BlogFavProvider>().addFavBlog(BlogsModel(id: blogData.id,title: blogData.title,image_url: blogData.image_url));
+                          favData.add(BlogsModel(id: blogData.id,title: blogData.title,image_url: blogData.image_url));
+                          context.read<BlogFavProvider>().addCounter();
+                        }
+                        setState(() {});
+                      },
+                      child: checkFav? Icon(Icons.favorite,color: Colors.red.shade300,size: 35):
+                      Icon(Icons.favorite_border,color: Colors.grey,size: 35)),
                 ),
                 Divider(color: Colors.grey,)
               ],
@@ -211,6 +211,7 @@ class _HomePageState extends State<HomePage> {
   void getData() async{
 
     data = await dbHelper.fetchAllBlog();
+    int i=0;
 
     if(data.length==0){
       context.read<BlogsBloc>().add(GetBlogsData());
@@ -247,6 +248,7 @@ class _HomePageState extends State<HomePage> {
           checkInt = false;
         });
       } else {
+        CustomToast();
         setState(() {
           checkInt = true;
         });
